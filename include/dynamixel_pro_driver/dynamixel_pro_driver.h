@@ -21,67 +21,67 @@ namespace dynamixel_pro_driver
 class DynamixelIO
 {
 public:
-    DynamixelIO(std::string device, std::string baud);//good
-    ~DynamixelIO();//good
+    DynamixelIO(std::string device, std::string baud);
+    ~DynamixelIO();
 
     long long unsigned int read_error_count;
     long long unsigned int read_count;
     double last_reset_sec;
 
-    bool ping(int servo_id);//good
+    bool ping(int servo_id);
     
     // ****************************** GETTERS ******************************** //
-    bool getModelNumber(int servo_id, uint16_t& model_number);//good
-    bool getFirmwareVersion(int servo_id, uint8_t& firmware_version);//good
-    bool getBaudRate(int servo_id, uint8_t& baud_rate);//good
-    bool getReturnDelayTime(int servo_id, uint8_t& return_delay_time);//good
+    bool getModelNumber(int servo_id, uint16_t& model_number);
+    bool getFirmwareVersion(int servo_id, uint8_t& firmware_version);
+    bool getBaudRate(int servo_id, uint8_t& baud_rate);
+    bool getReturnDelayTime(int servo_id, uint8_t& return_delay_time);
 
-    bool getOperatingMode(int servo_id, uint8_t &operating_mode);//good
+    bool getOperatingMode(int servo_id, uint8_t &operating_mode);
     
-    bool getAngleLimits(int servo_id, uint32_t& min_angle_limit, uint32_t& max_angle_limit);//good
-    bool getMaxAngleLimit(int servo_id, uint32_t& angle);//good
-    bool getMinAngleLimit(int servo_id, uint32_t& angle);//good
+    bool getAngleLimits(int servo_id, uint32_t& min_angle_limit, uint32_t& max_angle_limit);
+    bool getMaxAngleLimit(int servo_id, uint32_t& angle);
+    bool getMinAngleLimit(int servo_id, uint32_t& angle);
     
-    bool getVoltageLimits(int servo_id, float& min_voltage_limit, float& max_voltage_limit);//good
-    bool getMinVoltageLimit(int servo_id, float& min_voltage_limit);//good
-    bool getMaxVoltageLimit(int servo_id, float& max_voltage_limit);//good
+    bool getVoltageLimits(int servo_id, float& min_voltage_limit, float& max_voltage_limit);
+    bool getMinVoltageLimit(int servo_id, float& min_voltage_limit);
+    bool getMaxVoltageLimit(int servo_id, float& max_voltage_limit);
     
-    bool getTemperatureLimit(int servo_id, uint8_t& max_temperature);//good
-    bool getMaxTorque(int servo_id, uint16_t& max_torque);//working, what units is this?
-    bool getTorqueEnabled(int servo_id, bool& torque_enabled);//good
+    bool getTemperatureLimit(int servo_id, uint8_t& max_temperature);
+    bool getMaxTorque(int servo_id, uint16_t& max_torque);
+    bool getTorqueEnabled(int servo_id, bool& torque_enabled);
     
-    bool getTargetPosition(int servo_id, int32_t& target_position);//maybe
-    bool getTargetVelocity(int servo_id, int32_t& target_velocity);//maybe
+    bool getTargetPosition(int servo_id, int32_t& target_position);
+    bool getTargetVelocity(int servo_id, int32_t& target_velocity);
 
-    bool getPosition(int servo_id, int32_t& position);//good
-    bool getVelocity(int servo_id, int32_t& velocity);//good
-    bool getCurrent(int servo_id, uint16_t& current);//in miliamps, and sometimes returns false (maybe negative) readings. 
-    bool getVoltage(int servo_id, float& voltage);//good
-    bool getTemperature(int servo_id, uint8_t& temperature);//good
+    bool getPosition(int servo_id, int32_t& position);
+    bool getVelocity(int servo_id, int32_t& velocity);
+    bool getCurrent(int servo_id, uint16_t& current);
+    bool getVoltage(int servo_id, float& voltage);
+    bool getTemperature(int servo_id, uint8_t& temperature);
     
     // ****************************** SETTERS ******************************** //
     bool setId(int servo_id, uint8_t id); //untested
     bool setBaudRate(int servo_id, uint8_t baud_rate);//untested
     bool setReturnDelayTime(int servo_id, uint8_t return_delay_time);//untested
 
-    bool setOperatingMode(int servo_id, uint8_t operating_mode);//good
+    bool setOperatingMode(int servo_id, uint8_t operating_mode);
     
-    bool setAngleLimits(int servo_id, int32_t min_angle, int32_t max_angle); //good
-    bool setMinAngleLimit(int servo_id, int32_t angle);//good
-    bool setMaxAngleLimit(int servo_id, int32_t angle);//good
+    bool setAngleLimits(int servo_id, int32_t min_angle, int32_t max_angle); 
+    bool setMinAngleLimit(int servo_id, int32_t angle);
+    bool setMaxAngleLimit(int servo_id, int32_t angle);
    
-    bool setTemperatureLimit(int servo_id, uint8_t max_temperature); //good
-    bool setMaxTorque(int servo_id, uint16_t max_torque); //good
-    bool setTorqueEnable(int servo_id, bool on);//good
+    bool setTemperatureLimit(int servo_id, uint8_t max_temperature);
+    bool setMaxTorque(int servo_id, uint16_t max_torque); 
+    bool setTorqueEnable(int servo_id, bool on);
     
-    bool setPosition(int servo_id, uint32_t position);//good
-    bool setVelocity(int servo_id, int32_t velocity);//good
+    bool setPosition(int servo_id, uint32_t position);
+    bool setVelocity(int servo_id, int32_t velocity);
     
     // ************************* SYNC_WRITE METHODS *************************** //
-    bool setMultiPosition(std::vector<std::vector<int> > value_pairs);//good
-    bool setMultiVelocity(std::vector<std::vector<int> > value_pairs);//good
-    bool setMultiPositionVelocity(std::vector<std::vector<int> > value_tuples);//good
-    bool setMultiTorqueEnabled(std::vector<std::vector<int> > value_pairs);//good
+    bool setMultiPosition(std::vector<std::vector<int> > value_pairs);
+    bool setMultiVelocity(std::vector<std::vector<int> > value_pairs);
+    bool setMultiPositionVelocity(std::vector<std::vector<int> > value_tuples);
+    bool setMultiTorqueEnabled(std::vector<std::vector<int> > value_pairs);
     
 protected:
     bool validateNoErrorsProtected(int servo_id, uint8_t error_code, std::string method_name); // returns true if no error
@@ -91,15 +91,15 @@ protected:
     bool read(int servo_id,
               int address,
               int size,
-              std::vector<uint8_t>& response);//good
+              std::vector<uint8_t>& response);
 
     bool write(int servo_id,
                int address,
                const std::vector<uint8_t>& data,
-               std::vector<uint8_t>& response);//good
+               std::vector<uint8_t>& response);
 
     bool syncWrite(int address,
-                   const std::vector<std::vector<uint8_t> >& data);//good
+                   const std::vector<std::vector<uint8_t> >& data);
     
 private:
     serial::Serial *port_;
