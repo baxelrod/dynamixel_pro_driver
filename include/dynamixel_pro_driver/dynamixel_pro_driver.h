@@ -1,5 +1,5 @@
-#ifndef DYNAMIXEL_IO_H__
-#define DYNAMIXEL_IO_H__
+#ifndef DYNAMIXEL_PRO_DRIVER_H__
+#define 
 
 #include <pthread.h>
 #include <stdint.h>
@@ -116,4 +116,4 @@ private:
 
 }
 
-#endif
+#endif 
