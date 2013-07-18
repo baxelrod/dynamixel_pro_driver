@@ -1,5 +1,5 @@
 #ifndef DYNAMIXEL_PRO_DRIVER_H__
-#define 
+#define DYNAMIXEL_PRO_DRIVER_H__
 
 #include <pthread.h>
 #include <stdint.h>
