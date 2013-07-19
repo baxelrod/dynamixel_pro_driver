@@ -28,7 +28,7 @@ using namespace std;
 namespace dynamixel_pro_driver
 {
 
-DynamixelIO::DynamixelIO(std::string device="/dev/ttyUSB0",
+DynamixelProDriver::DynamixelProDriver(std::string device="/dev/ttyUSB0",
                          std::string baud="1000000")
 {
     read_count = 0;
@@ -41,14 +41,14 @@ DynamixelIO::DynamixelIO(std::string device="/dev/ttyUSB0",
     
 }
 
-DynamixelIO::~DynamixelIO()
+DynamixelProDriver::~DynamixelProDriver()
 {
     port_->close();
     delete port_;
     pthread_mutex_destroy(&serial_mutex_);
 }
 
-bool DynamixelIO::ping(int servo_id)
+bool DynamixelProDriver::ping(int servo_id)
 {
     // Instruction, crcx2 
     uint8_t length = 3;
@@ -69,13 +69,12 @@ bool DynamixelIO::ping(int servo_id)
     return success;
 }
 
-bool DynamixelIO::getModelNumber(int servo_id, uint16_t& model_number)
+bool DynamixelProDriver::getModelNumber(int servo_id, uint16_t& model_number)
 {
     std::vector<uint8_t> response;
 
     if (read(servo_id, DXL_MODEL_NUMBER, DXL_MODEL_NUMBER_SIZE, response))
     {
-        // header instruction error modelNum_l, modelNum_h, crc_l, crc_h
         model_number = MAKEWORD(response[HEADER_SIZE + 2],  response[HEADER_SIZE + 3]);
         ERROR_CHECK(servo_id, response[ERROR_INDEX]);
     }
@@ -83,7 +82,20 @@ bool DynamixelIO::getModelNumber(int servo_id, uint16_t& model_number)
     return false;
 }
 
-bool DynamixelIO::getFirmwareVersion(int servo_id, uint8_t& firmware_version)
+bool DynamixelProDriver::getModelInfo(int servo_id, uint32_t& model_info)
+{
+    std::vector<uint8_t> response;
+
+    if (read(servo_id, DXL_MODEL_INFO, 4, response))
+    {
+        model_info = *((uint32_t *) (&response[REPLY_BEGIN_INDEX]));
+        ERROR_CHECK(servo_id, response[ERROR_INDEX]);
+    }
+
+    return false;
+}
+
+bool DynamixelProDriver::getFirmwareVersion(int servo_id, uint8_t& firmware_version)
 {
     std::vector<uint8_t> response;
 
@@ -96,7 +108,7 @@ bool DynamixelIO::getFirmwareVersion(int servo_id, uint8_t& firmware_version)
     return false;
 }
 
-bool DynamixelIO::getBaudRate(int servo_id, uint8_t& baud_rate)
+bool DynamixelProDriver::getBaudRate(int servo_id, uint8_t& baud_rate)
 {
     std::vector<uint8_t> response;
     if (read(servo_id, DXL_BAUD_RATE, 1, response))
@@ -108,7 +120,7 @@ bool DynamixelIO::getBaudRate(int servo_id, uint8_t& baud_rate)
     return false;
 }
 
-bool DynamixelIO::getReturnDelayTime(int servo_id, uint8_t& return_delay_time)
+bool DynamixelProDriver::getReturnDelayTime(int servo_id, uint8_t& return_delay_time)
 {
     std::vector<uint8_t> response;
 
@@ -121,7 +133,7 @@ bool DynamixelIO::getReturnDelayTime(int servo_id, uint8_t& return_delay_time)
     return false;
 }
 
-bool DynamixelIO::getOperatingMode(int servo_id, uint8_t& op_mode)
+bool DynamixelProDriver::getOperatingMode(int servo_id, uint8_t& op_mode)
 {
     std::vector<uint8_t> response;
     if (read(servo_id, DXL_DRIVE_MODE, 1, response))
@@ -133,7 +145,7 @@ bool DynamixelIO::getOperatingMode(int servo_id, uint8_t& op_mode)
     return false;
 }
 
-bool DynamixelIO::getAngleLimits(int servo_id, uint32_t& min_angle_limit, uint32_t& max_angle_limit)
+bool DynamixelProDriver::getAngleLimits(int servo_id, uint32_t& min_angle_limit, uint32_t& max_angle_limit)
 {
     std::vector<uint8_t> response;
 
@@ -147,7 +159,7 @@ bool DynamixelIO::getAngleLimits(int servo_id, uint32_t& min_angle_limit, uint32
     return false;
 }
 
-bool DynamixelIO::getMaxAngleLimit(int servo_id, uint32_t& max_angle)
+bool DynamixelProDriver::getMaxAngleLimit(int servo_id, uint32_t& max_angle)
 {
     std::vector<uint8_t> response;
 
@@ -160,7 +172,7 @@ bool DynamixelIO::getMaxAngleLimit(int servo_id, uint32_t& max_angle)
     return false;
 }
 
-bool DynamixelIO::getMinAngleLimit(int servo_id, uint32_t& min_angle)
+bool DynamixelProDriver::getMinAngleLimit(int servo_id, uint32_t& min_angle)
 {
     std::vector<uint8_t> response;
 
@@ -173,7 +185,7 @@ bool DynamixelIO::getMinAngleLimit(int servo_id, uint32_t& min_angle)
     return false;
 }
 
-bool DynamixelIO::getVoltageLimits(int servo_id, float& min_voltage_limit, float& max_voltage_limit)
+bool DynamixelProDriver::getVoltageLimits(int servo_id, float& min_voltage_limit, float& max_voltage_limit)
 {
     std::vector<uint8_t> response;
 
@@ -187,7 +199,7 @@ bool DynamixelIO::getVoltageLimits(int servo_id, float& min_voltage_limit, float
     return false;
 }
 
-bool DynamixelIO::getMinVoltageLimit(int servo_id, float& min_voltage_limit)
+bool DynamixelProDriver::getMinVoltageLimit(int servo_id, float& min_voltage_limit)
 {
     std::vector<uint8_t> response;
 
@@ -200,7 +212,7 @@ bool DynamixelIO::getMinVoltageLimit(int servo_id, float& min_voltage_limit)
     return false;
 }
 
-bool DynamixelIO::getMaxVoltageLimit(int servo_id, float& max_voltage_limit)
+bool DynamixelProDriver::getMaxVoltageLimit(int servo_id, float& max_voltage_limit)
 {
     std::vector<uint8_t> response;
 
@@ -213,7 +225,7 @@ bool DynamixelIO::getMaxVoltageLimit(int servo_id, float& max_voltage_limit)
     return false;
 }
 
-bool DynamixelIO::getTemperatureLimit(int servo_id, uint8_t& max_temperature)
+bool DynamixelProDriver::getTemperatureLimit(int servo_id, uint8_t& max_temperature)
 {
     std::vector<uint8_t> response;
 
@@ -226,7 +238,7 @@ bool DynamixelIO::getTemperatureLimit(int servo_id, uint8_t& max_temperature)
     return false;
 }
 
-bool DynamixelIO::getMaxTorque(int servo_id, uint16_t& max_torque)
+bool DynamixelProDriver::getMaxTorque(int servo_id, uint16_t& max_torque)
 {
     std::vector<uint8_t> response;
 
@@ -239,7 +251,7 @@ bool DynamixelIO::getMaxTorque(int servo_id, uint16_t& max_torque)
     return false;
 }
 
-bool DynamixelIO::getTorqueEnabled(int servo_id, bool& torque_enabled)
+bool DynamixelProDriver::getTorqueEnabled(int servo_id, bool& torque_enabled)
 {
     std::vector<uint8_t> response;
 
@@ -252,7 +264,7 @@ bool DynamixelIO::getTorqueEnabled(int servo_id, bool& torque_enabled)
     return false;
 }
 
-bool DynamixelIO::getTargetPosition(int servo_id, int32_t& target_position)
+bool DynamixelProDriver::getTargetPosition(int servo_id, int32_t& target_position)
 {
     std::vector<uint8_t> response;
 
@@ -265,7 +277,7 @@ bool DynamixelIO::getTargetPosition(int servo_id, int32_t& target_position)
     return false;
 }
 
-bool DynamixelIO::getTargetVelocity(int servo_id, int32_t& target_velocity)
+bool DynamixelProDriver::getTargetVelocity(int servo_id, int32_t& target_velocity)
 {
     std::vector<uint8_t> response;
 
@@ -278,7 +290,7 @@ bool DynamixelIO::getTargetVelocity(int servo_id, int32_t& target_velocity)
     return false;
 }
 
-bool DynamixelIO::getPosition(int servo_id, int32_t& position)
+bool DynamixelProDriver::getPosition(int servo_id, int32_t& position)
 {
     std::vector<uint8_t> response;
 
@@ -291,7 +303,7 @@ bool DynamixelIO::getPosition(int servo_id, int32_t& position)
     return false;
 }
 
-bool DynamixelIO::getVelocity(int servo_id, int32_t& velocity)
+bool DynamixelProDriver::getVelocity(int servo_id, int32_t& velocity)
 {
     std::vector<uint8_t> response;
 
@@ -304,7 +316,7 @@ bool DynamixelIO::getVelocity(int servo_id, int32_t& velocity)
     return false;
 }
 
-bool DynamixelIO::getCurrent(int servo_id, uint16_t& current)
+bool DynamixelProDriver::getCurrent(int servo_id, uint16_t& current)
 {
     std::vector<uint8_t> response;
 
@@ -323,7 +335,7 @@ bool DynamixelIO::getCurrent(int servo_id, uint16_t& current)
     return false;
 }
 
-bool DynamixelIO::getVoltage(int servo_id, float& voltage)
+bool DynamixelProDriver::getVoltage(int servo_id, float& voltage)
 {
     std::vector<uint8_t> response;
 
@@ -337,7 +349,7 @@ bool DynamixelIO::getVoltage(int servo_id, float& voltage)
     return false;
 }
 
-bool DynamixelIO::getTemperature(int servo_id, uint8_t& temperature)
+bool DynamixelProDriver::getTemperature(int servo_id, uint8_t& temperature)
 {
     std::vector<uint8_t> response;
 
@@ -352,7 +364,7 @@ bool DynamixelIO::getTemperature(int servo_id, uint8_t& temperature)
 
 /************************ SETTERS **************************/
 
-bool DynamixelIO::setId(int servo_id, uint8_t id)
+bool DynamixelProDriver::setId(int servo_id, uint8_t id)
 {
     std::vector<uint8_t> data;
     data.push_back(id);
@@ -365,7 +377,7 @@ bool DynamixelIO::setId(int servo_id, uint8_t id)
     return false;
 }
 
-bool DynamixelIO::setBaudRate(int servo_id, uint8_t baud_rate)
+bool DynamixelProDriver::setBaudRate(int servo_id, uint8_t baud_rate)
 {
     std::vector<uint8_t> data;
     data.push_back(baud_rate);
@@ -378,7 +390,7 @@ bool DynamixelIO::setBaudRate(int servo_id, uint8_t baud_rate)
     return false;
 }
 
-bool DynamixelIO::setReturnDelayTime(int servo_id, uint8_t return_delay_time)
+bool DynamixelProDriver::setReturnDelayTime(int servo_id, uint8_t return_delay_time)
 {
     std::vector<uint8_t> data;
     data.push_back(return_delay_time);
@@ -391,7 +403,7 @@ bool DynamixelIO::setReturnDelayTime(int servo_id, uint8_t return_delay_time)
     return false;
 }
 
-bool DynamixelIO::setOperatingMode(int servo_id, uint8_t op_mode)
+bool DynamixelProDriver::setOperatingMode(int servo_id, uint8_t op_mode)
 {
     std::vector<uint8_t> data;
     data.push_back(op_mode);
@@ -404,7 +416,7 @@ bool DynamixelIO::setOperatingMode(int servo_id, uint8_t op_mode)
     return false;
 }
 
-bool DynamixelIO::setAngleLimits(int servo_id, int32_t min_angle, int32_t max_angle)
+bool DynamixelProDriver::setAngleLimits(int servo_id, int32_t min_angle, int32_t max_angle)
 {
     std::vector<uint8_t> data;
     for (int i = 0; i < 8; i++)
@@ -421,7 +433,7 @@ bool DynamixelIO::setAngleLimits(int servo_id, int32_t min_angle, int32_t max_an
     return false;
 }
 
-bool DynamixelIO::setMaxAngleLimit(int servo_id, int32_t max_angle)
+bool DynamixelProDriver::setMaxAngleLimit(int servo_id, int32_t max_angle)
 {
     std::vector<uint8_t> data;
     for (int i = 0; i < 4; i++)
@@ -436,7 +448,7 @@ bool DynamixelIO::setMaxAngleLimit(int servo_id, int32_t max_angle)
     return false;
 }
 
-bool DynamixelIO::setMinAngleLimit(int servo_id, int32_t min_angle)
+bool DynamixelProDriver::setMinAngleLimit(int servo_id, int32_t min_angle)
 {
     std::vector<uint8_t> data;
     for (int i = 0; i < 4; i++)
@@ -451,7 +463,7 @@ bool DynamixelIO::setMinAngleLimit(int servo_id, int32_t min_angle)
     return false;
 }
 
-bool DynamixelIO::setTemperatureLimit(int servo_id, uint8_t max_temperature)
+bool DynamixelProDriver::setTemperatureLimit(int servo_id, uint8_t max_temperature)
 {
     std::vector<uint8_t> data;
     data.push_back(max_temperature);
@@ -464,7 +476,7 @@ bool DynamixelIO::setTemperatureLimit(int servo_id, uint8_t max_temperature)
     return false;
 }
 
-bool DynamixelIO::setMaxTorque(int servo_id, uint16_t max_torque)
+bool DynamixelProDriver::setMaxTorque(int servo_id, uint16_t max_torque)
 {
     std::vector<uint8_t> data;
 
@@ -481,7 +493,7 @@ bool DynamixelIO::setMaxTorque(int servo_id, uint16_t max_torque)
     return false;
 }
 
-bool DynamixelIO::setTorqueEnable(int servo_id, bool on)
+bool DynamixelProDriver::setTorqueEnabled(int servo_id, bool on)
 {
     std::vector<uint8_t> data;
     data.push_back(on);
@@ -494,7 +506,7 @@ bool DynamixelIO::setTorqueEnable(int servo_id, bool on)
     return false;
 }
 
-bool DynamixelIO::setPosition(int servo_id, uint32_t position)
+bool DynamixelProDriver::setPosition(int servo_id, uint32_t position)
 {
     std::vector<uint8_t> data;
     
@@ -511,7 +523,7 @@ bool DynamixelIO::setPosition(int servo_id, uint32_t position)
 }
 
 
-bool DynamixelIO::setVelocity(int servo_id, int32_t velocity)
+bool DynamixelProDriver::setVelocity(int servo_id, int32_t velocity)
 {
     std::vector<uint8_t> data;
 
@@ -527,7 +539,7 @@ bool DynamixelIO::setVelocity(int servo_id, int32_t velocity)
     return false;
 }
 
-bool DynamixelIO::setMultiPosition(std::vector<std::vector<int> > value_pairs)
+bool DynamixelProDriver::setMultiPosition(std::vector<std::vector<int> > value_pairs)
 {
     std::vector<std::vector<uint8_t> > data;
 
@@ -553,7 +565,7 @@ bool DynamixelIO::setMultiPosition(std::vector<std::vector<int> > value_pairs)
         return false; 
 }
 
-bool DynamixelIO::setMultiVelocity(std::vector<std::vector<int> > value_pairs)
+bool DynamixelProDriver::setMultiVelocity(std::vector<std::vector<int> > value_pairs)
 {
     std::vector<std::vector<uint8_t> > data;
 
@@ -579,7 +591,7 @@ bool DynamixelIO::setMultiVelocity(std::vector<std::vector<int> > value_pairs)
         return false;
 }
 
-bool DynamixelIO::setMultiPositionVelocity(std::vector<std::vector<int> > value_tuples)
+bool DynamixelProDriver::setMultiPositionVelocity(std::vector<std::vector<int> > value_tuples)
 {
     std::vector<std::vector<uint8_t> > data;
 
@@ -608,7 +620,7 @@ bool DynamixelIO::setMultiPositionVelocity(std::vector<std::vector<int> > value_
         return false;
 }
 
-bool DynamixelIO::setMultiTorqueEnabled(std::vector<std::vector<int> > value_pairs)
+bool DynamixelProDriver::setMultiTorqueEnabled(std::vector<std::vector<int> > value_pairs)
 {
     std::vector<std::vector<uint8_t> > data;
     
@@ -631,7 +643,7 @@ bool DynamixelIO::setMultiTorqueEnabled(std::vector<std::vector<int> > value_pai
         return false;
 }
 
-bool DynamixelIO::validateNoErrorsProtected(int servo_id, uint8_t error_code, std::string method_name)
+bool DynamixelProDriver::validateNoErrorsProtected(int servo_id, uint8_t error_code, std::string method_name)
 {
   if (validateNoErrors(servo_id, error_code, method_name))
   {
@@ -650,7 +662,7 @@ bool DynamixelIO::validateNoErrorsProtected(int servo_id, uint8_t error_code, st
   }
 }
 
-bool DynamixelIO::validateNoErrors(int servo_id, uint8_t error_code, std::string command_failed)
+bool DynamixelProDriver::validateNoErrors(int servo_id, uint8_t error_code, std::string command_failed)
 {
     if (error_code == DXL_NO_ERROR)
     {
@@ -686,7 +698,7 @@ bool DynamixelIO::validateNoErrors(int servo_id, uint8_t error_code, std::string
     return false;
 }
 
-bool DynamixelIO::read(int servo_id,
+bool DynamixelProDriver::read(int servo_id,
                        int address,
                        int size,
                        std::vector<uint8_t>& response)
@@ -709,7 +721,7 @@ bool DynamixelIO::read(int servo_id,
     return success;
 }
 
-bool DynamixelIO::write(int servo_id,
+bool DynamixelProDriver::write(int servo_id,
                         int address,
                         const std::vector<uint8_t>& data,
                         std::vector<uint8_t>& response)
@@ -747,7 +759,7 @@ bool DynamixelIO::write(int servo_id,
     return success;
 }
 
-bool DynamixelIO::syncWrite(int address,
+bool DynamixelProDriver::syncWrite(int address,
                             const std::vector<std::vector<uint8_t> >& data)
 {
     // data = ( (id, byte1, byte2... ), (id, byte1, byte2...), ... )
@@ -796,7 +808,7 @@ bool DynamixelIO::syncWrite(int address,
     return success;
 }
 
-bool DynamixelIO::waitForBytes(ssize_t n_bytes, uint16_t timeout_ms)
+bool DynamixelProDriver::waitForBytes(ssize_t n_bytes, uint16_t timeout_ms)
 {
     struct timespec ts_now;
     clock_gettime(CLOCK_REALTIME, &ts_now);
@@ -819,7 +831,7 @@ bool DynamixelIO::waitForBytes(ssize_t n_bytes, uint16_t timeout_ms)
 }
 
 //#define PRINT_PACKET_BEFORE_SEND
-bool DynamixelIO::writePacket(uint8_t *packet)
+bool DynamixelProDriver::writePacket(uint8_t *packet)
 {
     int count = MAKEWORD(packet[PKT_LENGTH_L], packet[PKT_LENGTH_H]);
     port_->flush();
@@ -844,7 +856,7 @@ bool DynamixelIO::writePacket(uint8_t *packet)
     return (port_->write(&proccessed_packet[0], count + 7) == (ssize_t) (count + 7));
 }
 
-bool DynamixelIO::readResponse(std::vector<uint8_t>& response)
+bool DynamixelProDriver::readResponse(std::vector<uint8_t>& response)
 {
     struct timespec ts_now;
     clock_gettime(CLOCK_REALTIME, &ts_now);
@@ -913,7 +925,7 @@ bool DynamixelIO::readResponse(std::vector<uint8_t>& response)
     return false;
 }
 
-uint16_t DynamixelIO::calculate_crc(uint8_t *data)
+uint16_t DynamixelProDriver::calculate_crc(uint8_t *data)
 {
     uint16_t size = MAKEWORD(data[PKT_LENGTH_L], data[PKT_LENGTH_H]) + 5;
     //cout << "size is" << size << endl;
@@ -968,7 +980,7 @@ uint16_t DynamixelIO::calculate_crc(uint8_t *data)
     return crc_accum;
 }
 
-vector<uint8_t> DynamixelIO::stuff_packet(uint8_t *packet)
+vector<uint8_t> DynamixelProDriver::stuff_packet(uint8_t *packet)
 {
    vector<uint8_t> stuffed_packet;
     

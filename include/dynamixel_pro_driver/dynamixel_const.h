@@ -14,6 +14,7 @@ const uint16_t REPLY_BEGIN_INDEX = ERROR_INDEX + 1;
 typedef enum DynamixelControlEnum
 {
     DXL_MODEL_NUMBER = 0,
+    DXL_MODEL_INFO=2,
     DXL_FIRMWARE_VERSION = 6,
     DXL_ID = 7,
     DXL_BAUD_RATE = 8,

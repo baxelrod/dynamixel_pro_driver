@@ -18,11 +18,11 @@
 namespace dynamixel_pro_driver 
 {
 
-class DynamixelIO
+class DynamixelProDriver
 {
 public:
-    DynamixelIO(std::string device, std::string baud);
-    ~DynamixelIO();
+    DynamixelProDriver(std::string device, std::string baud);
+    ~DynamixelProDriver();
 
     long long unsigned int read_error_count;
     long long unsigned int read_count;
@@ -32,6 +32,7 @@ public:
     
     // ****************************** GETTERS ******************************** //
     bool getModelNumber(int servo_id, uint16_t& model_number);
+    bool getModelInfo(int servo_id, uint32_t& model_info);
     bool getFirmwareVersion(int servo_id, uint8_t& firmware_version);
     bool getBaudRate(int servo_id, uint8_t& baud_rate);
     bool getReturnDelayTime(int servo_id, uint8_t& return_delay_time);
@@ -72,7 +73,7 @@ public:
    
     bool setTemperatureLimit(int servo_id, uint8_t max_temperature);
     bool setMaxTorque(int servo_id, uint16_t max_torque); 
-    bool setTorqueEnable(int servo_id, bool on);
+    bool setTorqueEnabled(int servo_id, bool on);
     
     bool setPosition(int servo_id, uint32_t position);
     bool setVelocity(int servo_id, int32_t velocity);
