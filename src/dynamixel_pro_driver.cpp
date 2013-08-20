@@ -1,3 +1,37 @@
+/*********************************************************************
+ * Software License Agreement (BSD License)
+ *
+ *  Copyright (c) 2013, Willow Garage
+ *  All rights reserved.
+ *
+ *  Redistribution and use in source and binary forms, with or without
+ *  modification, are permitted provided that the following conditions
+ *  are met:
+ *
+ *   * Redistributions of source code must retain the above copyright
+ *     notice, this list of conditions and the following disclaimer.
+ *   * Redistributions in binary form must reproduce the above
+ *     copyright notice, this list of conditions and the following
+ *     disclaimer in the documentation and/or other materials provided
+ *     with the distribution.
+ *   * Neither the name of Willow Garage nor the names of its
+ *     contributors may be used to endorse or promote products derived
+ *     from this software without specific prior written permission.
+ *
+ *  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+ *  "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+ *  LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS
+ *  FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE
+ *  COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT,
+ *  INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
+ *  BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
+ *  LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
+ *  CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+ *  LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN
+ *  ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+ *  POSSIBILITY OF SUCH DAMAGE.
+ *********************************************************************/
+
 #include <time.h>
 #include <pthread.h>
 #include <stdint.h>
@@ -10,6 +44,8 @@
 #include <set>
 #include <string>
 #include <vector>
+
+#include <ros/ros.h>
 
 #include <dynamixel_pro_driver/dynamixel_const.h>
 #include <dynamixel_pro_driver/dynamixel_pro_driver.h>
@@ -25,6 +61,9 @@
 
 using namespace std;
 
+
+
+/*******************  IMPORTANT This code was written for little-endian cpus (forex intel)   ****************/
 namespace dynamixel_pro_driver
 {
 
@@ -76,7 +115,7 @@ bool DynamixelProDriver::getModelNumber(int servo_id, uint16_t& model_number)
     if (read(servo_id, DXL_MODEL_NUMBER, DXL_MODEL_NUMBER_SIZE, response))
     {
         model_number = MAKEWORD(response[HEADER_SIZE + 2],  response[HEADER_SIZE + 3]);
-        ERROR_CHECK(servo_id, response[ERROR_INDEX]);
+        return DMX_PRO_DRIVER_ERROR_CHECK(servo_id, response[ERROR_INDEX]);
     }
 
     return false;
@@ -89,7 +128,7 @@ bool DynamixelProDriver::getModelInfo(int servo_id, uint32_t& model_info)
     if (read(servo_id, DXL_MODEL_INFO, 4, response))
     {
         model_info = *((uint32_t *) (&response[REPLY_BEGIN_INDEX]));
-        ERROR_CHECK(servo_id, response[ERROR_INDEX]);
+        return DMX_PRO_DRIVER_ERROR_CHECK(servo_id, response[ERROR_INDEX]);
     }
 
     return false;
@@ -102,7 +141,7 @@ bool DynamixelProDriver::getFirmwareVersion(int servo_id, uint8_t& firmware_vers
     if (read(servo_id, DXL_FIRMWARE_VERSION, 1, response))
     {
         firmware_version = response[HEADER_SIZE + 2];
-        ERROR_CHECK(servo_id, response[ERROR_INDEX]);
+        return DMX_PRO_DRIVER_ERROR_CHECK(servo_id, response[ERROR_INDEX]);
     }
 
     return false;
@@ -114,7 +153,7 @@ bool DynamixelProDriver::getBaudRate(int servo_id, uint8_t& baud_rate)
     if (read(servo_id, DXL_BAUD_RATE, 1, response))
     {
         baud_rate = response[HEADER_SIZE + 2];
-        ERROR_CHECK(servo_id, response[ERROR_INDEX]);
+        return DMX_PRO_DRIVER_ERROR_CHECK(servo_id, response[ERROR_INDEX]);
     }
     
     return false;
@@ -127,7 +166,7 @@ bool DynamixelProDriver::getReturnDelayTime(int servo_id, uint8_t& return_delay_
     if (read(servo_id, DXL_RETURN_DELAY_TIME, 1, response))
     {
         return_delay_time = response[HEADER_SIZE + 2];
-        ERROR_CHECK(servo_id, response[ERROR_INDEX]);
+        return DMX_PRO_DRIVER_ERROR_CHECK(servo_id, response[ERROR_INDEX]);
     }
 
     return false;
@@ -139,7 +178,7 @@ bool DynamixelProDriver::getOperatingMode(int servo_id, uint8_t& op_mode)
     if (read(servo_id, DXL_DRIVE_MODE, 1, response))
     {
         op_mode = response[HEADER_SIZE + 2];
-        ERROR_CHECK(servo_id, response[ERROR_INDEX]);
+        return DMX_PRO_DRIVER_ERROR_CHECK(servo_id, response[ERROR_INDEX]);
     }
     
     return false;
@@ -153,7 +192,7 @@ bool DynamixelProDriver::getAngleLimits(int servo_id, uint32_t& min_angle_limit,
     {
         max_angle_limit = *((uint32_t *) (&response[REPLY_BEGIN_INDEX]));
         min_angle_limit = *((uint32_t *) (&response[REPLY_BEGIN_INDEX + DXL_POSITION_LIMIT_SIZE]));
-        ERROR_CHECK(servo_id, response[ERROR_INDEX]);
+        return DMX_PRO_DRIVER_ERROR_CHECK(servo_id, response[ERROR_INDEX]);
     }
 
     return false;
@@ -166,7 +205,7 @@ bool DynamixelProDriver::getMaxAngleLimit(int servo_id, uint32_t& max_angle)
     if (read(servo_id, DXL_MAX_ANGLE_LIMIT, DXL_POSITION_LIMIT_SIZE, response))
     {
         max_angle = *((uint32_t *) (&response[HEADER_SIZE + 2]));
-        ERROR_CHECK(servo_id, response[ERROR_INDEX]);
+        return DMX_PRO_DRIVER_ERROR_CHECK(servo_id, response[ERROR_INDEX]);
     }
 
     return false;
@@ -179,7 +218,7 @@ bool DynamixelProDriver::getMinAngleLimit(int servo_id, uint32_t& min_angle)
     if (read(servo_id, DXL_MIN_ANGLE_LIMIT, DXL_POSITION_LIMIT_SIZE, response))
     {
         min_angle = *((uint32_t *) (&response[HEADER_SIZE + 2]));
-        ERROR_CHECK(servo_id, response[ERROR_INDEX]);
+        return DMX_PRO_DRIVER_ERROR_CHECK(servo_id, response[ERROR_INDEX]);
     }
 
     return false;
@@ -193,7 +232,7 @@ bool DynamixelProDriver::getVoltageLimits(int servo_id, float& min_voltage_limit
     {
         min_voltage_limit = *((uint16_t*) &response[REPLY_BEGIN_INDEX]) / 10.0;
         max_voltage_limit = *((uint16_t*) &response[REPLY_BEGIN_INDEX + 2]) / 10.0;
-        ERROR_CHECK(servo_id, response[ERROR_INDEX]);
+        return DMX_PRO_DRIVER_ERROR_CHECK(servo_id, response[ERROR_INDEX]);
     }
 
     return false;
@@ -206,7 +245,7 @@ bool DynamixelProDriver::getMinVoltageLimit(int servo_id, float& min_voltage_lim
     if (read(servo_id, DXL_DOWN_LIMIT_VOLTAGE, 2, response))
     {
         min_voltage_limit = *((uint16_t*) &response[REPLY_BEGIN_INDEX]) / 10.0;
-        ERROR_CHECK(servo_id, response[ERROR_INDEX]);
+        return DMX_PRO_DRIVER_ERROR_CHECK(servo_id, response[ERROR_INDEX]);
     }
 
     return false;
@@ -219,7 +258,7 @@ bool DynamixelProDriver::getMaxVoltageLimit(int servo_id, float& max_voltage_lim
     if (read(servo_id, DXL_UP_LIMIT_VOLTAGE, 2, response))
     {
         max_voltage_limit = *((uint16_t*) &response[REPLY_BEGIN_INDEX]) / 10.0;
-        ERROR_CHECK(servo_id, response[ERROR_INDEX]);
+        return DMX_PRO_DRIVER_ERROR_CHECK(servo_id, response[ERROR_INDEX]);
     }
 
     return false;
@@ -232,7 +271,7 @@ bool DynamixelProDriver::getTemperatureLimit(int servo_id, uint8_t& max_temperat
     if (read(servo_id, DXL_LIMIT_TEMPERATURE, 1, response))
     {
         max_temperature = response[REPLY_BEGIN_INDEX];
-        ERROR_CHECK(servo_id, response[ERROR_INDEX]);
+        return DMX_PRO_DRIVER_ERROR_CHECK(servo_id, response[ERROR_INDEX]);
     }
 
     return false;
@@ -245,7 +284,7 @@ bool DynamixelProDriver::getMaxTorque(int servo_id, uint16_t& max_torque)
     if (read(servo_id, DXL_MAX_TORQUE, 2, response))
     {
         max_torque = response[REPLY_BEGIN_INDEX];
-        ERROR_CHECK(servo_id, response[ERROR_INDEX]);
+        return DMX_PRO_DRIVER_ERROR_CHECK(servo_id, response[ERROR_INDEX]);
     }
 
     return false;
@@ -258,7 +297,7 @@ bool DynamixelProDriver::getTorqueEnabled(int servo_id, bool& torque_enabled)
     if (read(servo_id, DXL_TORQUE_ENABLE, 1, response))
     {
         torque_enabled = response[REPLY_BEGIN_INDEX];
-        ERROR_CHECK(servo_id, response[ERROR_INDEX]);
+        return DMX_PRO_DRIVER_ERROR_CHECK(servo_id, response[ERROR_INDEX]);
     }
 
     return false;
@@ -271,7 +310,7 @@ bool DynamixelProDriver::getTargetPosition(int servo_id, int32_t& target_positio
     if (read(servo_id, DXL_GOAL_POSITION, 4, response))
     {
         target_position = *((int32_t*) &response[REPLY_BEGIN_INDEX]);
-        ERROR_CHECK(servo_id, response[ERROR_INDEX]);
+        return DMX_PRO_DRIVER_ERROR_CHECK(servo_id, response[ERROR_INDEX]);
     }
 
     return false;
@@ -284,7 +323,7 @@ bool DynamixelProDriver::getTargetVelocity(int servo_id, int32_t& target_velocit
     if (read(servo_id, DXL_GOAL_SPEED, 4, response))
     {
         target_velocity = *((int32_t*) &response[REPLY_BEGIN_INDEX]);
-        ERROR_CHECK(servo_id, response[ERROR_INDEX]);
+        return DMX_PRO_DRIVER_ERROR_CHECK(servo_id, response[ERROR_INDEX]);
     }
 
     return false;
@@ -297,7 +336,7 @@ bool DynamixelProDriver::getPosition(int servo_id, int32_t& position)
     if (read(servo_id, DXL_PRESENT_POSITION, 4, response))
     {
         position = *((int32_t *)(&response[REPLY_BEGIN_INDEX])); 
-        ERROR_CHECK(servo_id, response[ERROR_INDEX]);
+        return DMX_PRO_DRIVER_ERROR_CHECK(servo_id, response[ERROR_INDEX]);
     }
 
     return false;
@@ -310,7 +349,7 @@ bool DynamixelProDriver::getVelocity(int servo_id, int32_t& velocity)
     if (read(servo_id, DXL_PRESENT_SPEED, 4, response))
     {
         velocity = *((int32_t *)(&response[REPLY_BEGIN_INDEX])); 
-        ERROR_CHECK(servo_id, response[ERROR_INDEX]);
+        return DMX_PRO_DRIVER_ERROR_CHECK(servo_id, response[ERROR_INDEX]);
     }
 
     return false;
@@ -343,7 +382,7 @@ bool DynamixelProDriver::getVoltage(int servo_id, float& voltage)
     {
         uint16_t voltage_t = *((uint16_t *)(&response[REPLY_BEGIN_INDEX])); 
         voltage = voltage_t / 10.0;
-        ERROR_CHECK(servo_id, response[ERROR_INDEX]);
+        return DMX_PRO_DRIVER_ERROR_CHECK(servo_id, response[ERROR_INDEX]);
     }
 
     return false;
@@ -356,7 +395,7 @@ bool DynamixelProDriver::getTemperature(int servo_id, uint8_t& temperature)
     if (read(servo_id, DXL_PRESENT_TEMPERATURE, 1, response))
     {
         temperature = *((uint8_t *)(&response[REPLY_BEGIN_INDEX]));
-        ERROR_CHECK(servo_id, response[ERROR_INDEX]);
+        return DMX_PRO_DRIVER_ERROR_CHECK(servo_id, response[ERROR_INDEX]);
     }
 
     return false;
@@ -372,7 +411,7 @@ bool DynamixelProDriver::setId(int servo_id, uint8_t id)
     std::vector<uint8_t> response;
     
     if (write(servo_id, DXL_ID, data, response))
-        ERROR_CHECK(servo_id, response[ERROR_INDEX]);
+        return DMX_PRO_DRIVER_ERROR_CHECK(servo_id, response[ERROR_INDEX]);
     
     return false;
 }
@@ -385,7 +424,7 @@ bool DynamixelProDriver::setBaudRate(int servo_id, uint8_t baud_rate)
     std::vector<uint8_t> response;
     
     if (write(servo_id, DXL_BAUD_RATE, data, response))
-        ERROR_CHECK(servo_id, response[ERROR_INDEX]);
+        return DMX_PRO_DRIVER_ERROR_CHECK(servo_id, response[ERROR_INDEX]);
     
     return false;
 }
@@ -398,7 +437,7 @@ bool DynamixelProDriver::setReturnDelayTime(int servo_id, uint8_t return_delay_t
     std::vector<uint8_t> response;
 
     if (write(servo_id, DXL_RETURN_DELAY_TIME, data, response))
-        ERROR_CHECK(servo_id, response[ERROR_INDEX]);
+        return DMX_PRO_DRIVER_ERROR_CHECK(servo_id, response[ERROR_INDEX]);
 
     return false;
 }
@@ -411,7 +450,7 @@ bool DynamixelProDriver::setOperatingMode(int servo_id, uint8_t op_mode)
     std::vector<uint8_t> response;
     
     if (write(servo_id, DXL_DRIVE_MODE, data, response))
-        ERROR_CHECK_PROTECTED(servo_id, response[ERROR_INDEX]);
+        return DMX_PRO_DRIVER_ERROR_CHECK_PROTECTED(servo_id, response[ERROR_INDEX]);
     
     return false;
 }
@@ -419,8 +458,11 @@ bool DynamixelProDriver::setOperatingMode(int servo_id, uint8_t op_mode)
 bool DynamixelProDriver::setAngleLimits(int servo_id, int32_t min_angle, int32_t max_angle)
 {
     std::vector<uint8_t> data;
+
+    //expand the vector to be the right size
     for (int i = 0; i < 8; i++)
         data.push_back(0);
+
     *((uint32_t *)&data[0])= max_angle;
     *((uint32_t *)&data[4])= min_angle;
 
@@ -428,7 +470,7 @@ bool DynamixelProDriver::setAngleLimits(int servo_id, int32_t min_angle, int32_t
     std::vector<uint8_t> response;
 
     if (write(servo_id, DXL_MAX_ANGLE_LIMIT, data, response))
-        ERROR_CHECK_PROTECTED(servo_id, response[ERROR_INDEX]);
+        return DMX_PRO_DRIVER_ERROR_CHECK_PROTECTED(servo_id, response[ERROR_INDEX]);
     
     return false;
 }
@@ -436,6 +478,8 @@ bool DynamixelProDriver::setAngleLimits(int servo_id, int32_t min_angle, int32_t
 bool DynamixelProDriver::setMaxAngleLimit(int servo_id, int32_t max_angle)
 {
     std::vector<uint8_t> data;
+
+    //expand the vector to be the right size
     for (int i = 0; i < 4; i++)
         data.push_back(0);
     *((uint32_t *)&data[0])= max_angle;
@@ -443,7 +487,7 @@ bool DynamixelProDriver::setMaxAngleLimit(int servo_id, int32_t max_angle)
     std::vector<uint8_t> response;
 
     if (write(servo_id, DXL_MAX_ANGLE_LIMIT, data, response))
-        ERROR_CHECK_PROTECTED(servo_id, response[ERROR_INDEX]);
+        return DMX_PRO_DRIVER_ERROR_CHECK_PROTECTED(servo_id, response[ERROR_INDEX]);
     
     return false;
 }
@@ -451,6 +495,8 @@ bool DynamixelProDriver::setMaxAngleLimit(int servo_id, int32_t max_angle)
 bool DynamixelProDriver::setMinAngleLimit(int servo_id, int32_t min_angle)
 {
     std::vector<uint8_t> data;
+
+    //expand the vector to be the right size
     for (int i = 0; i < 4; i++)
         data.push_back(0);
     *((uint32_t *)&data[0])= min_angle;
@@ -458,7 +504,7 @@ bool DynamixelProDriver::setMinAngleLimit(int servo_id, int32_t min_angle)
     std::vector<uint8_t> response;
 
     if (write(servo_id, DXL_MIN_ANGLE_LIMIT, data, response))
-        ERROR_CHECK_PROTECTED(servo_id, response[ERROR_INDEX]);
+        return DMX_PRO_DRIVER_ERROR_CHECK_PROTECTED(servo_id, response[ERROR_INDEX]);
     
     return false;
 }
@@ -471,7 +517,7 @@ bool DynamixelProDriver::setTemperatureLimit(int servo_id, uint8_t max_temperatu
     std::vector<uint8_t> response;
 
     if (write(servo_id, DXL_LIMIT_TEMPERATURE, data, response))
-        ERROR_CHECK_PROTECTED(servo_id, response[ERROR_INDEX]);
+        return DMX_PRO_DRIVER_ERROR_CHECK_PROTECTED(servo_id, response[ERROR_INDEX]);
 
     return false;
 }
@@ -480,6 +526,7 @@ bool DynamixelProDriver::setMaxTorque(int servo_id, uint16_t max_torque)
 {
     std::vector<uint8_t> data;
 
+    //expand the vector to be the right size
     for (int i = 0; i < 2; i++)
         data.push_back(0);
 
@@ -488,7 +535,7 @@ bool DynamixelProDriver::setMaxTorque(int servo_id, uint16_t max_torque)
     std::vector<uint8_t> response;
     
     if (write(servo_id, DXL_MAX_TORQUE, data, response))
-        ERROR_CHECK_PROTECTED(servo_id, response[ERROR_INDEX]);
+        return DMX_PRO_DRIVER_ERROR_CHECK_PROTECTED(servo_id, response[ERROR_INDEX]);
     
     return false;
 }
@@ -501,7 +548,7 @@ bool DynamixelProDriver::setTorqueEnabled(int servo_id, bool on)
     std::vector<uint8_t> response;
 
     if (write(servo_id, DXL_TORQUE_ENABLE, data, response))
-        ERROR_CHECK(servo_id, response[ERROR_INDEX]);
+        return DMX_PRO_DRIVER_ERROR_CHECK(servo_id, response[ERROR_INDEX]);
 
     return false;
 }
@@ -509,7 +556,8 @@ bool DynamixelProDriver::setTorqueEnabled(int servo_id, bool on)
 bool DynamixelProDriver::setPosition(int servo_id, uint32_t position)
 {
     std::vector<uint8_t> data;
-    
+
+    //expand the vector to be the right size
     for (int i = 0; i < 4; i++)
         data.push_back(0);
     *((uint32_t *)&data[0])=position;
@@ -517,7 +565,7 @@ bool DynamixelProDriver::setPosition(int servo_id, uint32_t position)
     std::vector<uint8_t> response;
 
     if (write(servo_id, DXL_GOAL_POSITION, data, response))
-        ERROR_CHECK(servo_id, response[ERROR_INDEX]);
+        return DMX_PRO_DRIVER_ERROR_CHECK(servo_id, response[ERROR_INDEX]);
 
     return false;
 }
@@ -527,6 +575,7 @@ bool DynamixelProDriver::setVelocity(int servo_id, int32_t velocity)
 {
     std::vector<uint8_t> data;
 
+    //expand the vector to be the right size
     for (int i = 0; i < 4; i++)
         data.push_back(0);
     *((uint32_t *)&data[0])=velocity;
@@ -534,7 +583,7 @@ bool DynamixelProDriver::setVelocity(int servo_id, int32_t velocity)
     std::vector<uint8_t> response;
 
     if (write(servo_id, DXL_GOAL_SPEED, data, response))
-        ERROR_CHECK(servo_id, response[ERROR_INDEX]);
+        return DMX_PRO_DRIVER_ERROR_CHECK(servo_id, response[ERROR_INDEX]);
 
     return false;
 }
@@ -551,6 +600,7 @@ bool DynamixelProDriver::setMultiPosition(std::vector<std::vector<int> > value_p
         std::vector<uint8_t> value_pair;
         value_pair.push_back(motor_id);                 // servo id
         
+        //expand the vector to be the right size
         for (int i = 0; i < 4; i++)
             value_pair.push_back(0);
 
@@ -577,6 +627,7 @@ bool DynamixelProDriver::setMultiVelocity(std::vector<std::vector<int> > value_p
         std::vector<uint8_t> value_pair;
         value_pair.push_back(motor_id);             // servo id
 
+        //expand the vector to be the right size
         for (int i = 0; i < 4; i++)
             value_pair.push_back(0);
 
@@ -605,6 +656,7 @@ bool DynamixelProDriver::setMultiPositionVelocity(std::vector<std::vector<int> >
 
         vals.push_back(motor_id);     // servo id
         
+        //expand the vector to be the right size
         for (int i = 0; i < 8; i++)
             vals.push_back(0);
 
@@ -670,7 +722,7 @@ bool DynamixelProDriver::validateNoErrors(int servo_id, uint8_t error_code, std:
     }
     else
     {
-        cout << "you have a dynamixel comms error " << (int) error_code << endl;
+        ROS_ERROR("you have a dynamixel comms error %d", (int) error_code);
     }
     
     std::vector<std::string> error_msgs;
@@ -693,7 +745,7 @@ bool DynamixelProDriver::validateNoErrors(int servo_id, uint8_t error_code, std:
     
     m << "] during " << command_failed << " command on servo #" << servo_id; 
 
-    cout  << m.str() << endl;
+    ROS_ERROR("%s", m.str().c_str());
 
     return false;
 }

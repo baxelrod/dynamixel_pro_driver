@@ -1,3 +1,37 @@
+/*********************************************************************
+ * Software License Agreement (BSD License)
+ *
+ *  Copyright (c) 2013, Willow Garage
+ *  All rights reserved.
+ *
+ *  Redistribution and use in source and binary forms, with or without
+ *  modification, are permitted provided that the following conditions
+ *  are met:
+ *
+ *   * Redistributions of source code must retain the above copyright
+ *     notice, this list of conditions and the following disclaimer.
+ *   * Redistributions in binary form must reproduce the above
+ *     copyright notice, this list of conditions and the following
+ *     disclaimer in the documentation and/or other materials provided
+ *     with the distribution.
+ *   * Neither the name of Willow Garage nor the names of its
+ *     contributors may be used to endorse or promote products derived
+ *     from this software without specific prior written permission.
+ *
+ *  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+ *  "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+ *  LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS
+ *  FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE
+ *  COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT,
+ *  INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
+ *  BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
+ *  LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
+ *  CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+ *  LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN
+ *  ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+ *  POSSIBILITY OF SUCH DAMAGE.
+ *********************************************************************/
+
 #ifndef DYNAMIXEL_PRO_DRIVER_H__
 #define DYNAMIXEL_PRO_DRIVER_H__
 
@@ -10,14 +44,25 @@
 #include <vector>
 
 #include <serial/serial.h>
-#include <clam/gearbox/flexiport/port.h>
 
-#define ERROR_CHECK_PROTECTED(servo_id, error_code) return validateNoErrorsProtected((servo_id), (error_code), __PRETTY_FUNCTION__);
-#define ERROR_CHECK(servo_id, error_code) return validateNoErrors((servo_id), (error_code), __PRETTY_FUNCTION__);
+/**
+ * does the same thing as error_check but spits out a more intelligent error 
+ * message if you're having problems writing to protected
+ * parameters on the dynamixel
+*/
+#define DMX_PRO_DRIVER_ERROR_CHECK_PROTECTED(servo_id, error_code) validateNoErrorsProtected((servo_id), (error_code), __PRETTY_FUNCTION__);
+
+/**
+ * Calls the validate no errors function with the current function name. 
+ */
+#define DMX_PRO_DRIVER_ERROR_CHECK(servo_id, error_code) validateNoErrors((servo_id), (error_code), __PRETTY_FUNCTION__);
 
 namespace dynamixel_pro_driver 
 {
 
+/**
+ * Provides the interface to control Dynamixel pro motors 
+ */
 class DynamixelProDriver
 {
 public:
@@ -30,7 +75,7 @@ public:
 
     bool ping(int servo_id);
     
-    // ****************************** GETTERS ******************************** //
+    // **************************** GETTERS ******************************** //
     bool getModelNumber(int servo_id, uint16_t& model_number);
     bool getModelInfo(int servo_id, uint32_t& model_info);
     bool getFirmwareVersion(int servo_id, uint8_t& firmware_version);
@@ -39,11 +84,13 @@ public:
 
     bool getOperatingMode(int servo_id, uint8_t &operating_mode);
     
-    bool getAngleLimits(int servo_id, uint32_t& min_angle_limit, uint32_t& max_angle_limit);
+    bool getAngleLimits(int servo_id, uint32_t& min_angle_limit, 
+        uint32_t& max_angle_limit);
     bool getMaxAngleLimit(int servo_id, uint32_t& angle);
     bool getMinAngleLimit(int servo_id, uint32_t& angle);
     
-    bool getVoltageLimits(int servo_id, float& min_voltage_limit, float& max_voltage_limit);
+    bool getVoltageLimits(int servo_id, float& min_voltage_limit, 
+        float& max_voltage_limit);
     bool getMinVoltageLimit(int servo_id, float& min_voltage_limit);
     bool getMaxVoltageLimit(int servo_id, float& max_voltage_limit);
     
@@ -60,10 +107,10 @@ public:
     bool getVoltage(int servo_id, float& voltage);
     bool getTemperature(int servo_id, uint8_t& temperature);
     
-    // ****************************** SETTERS ******************************** //
-    bool setId(int servo_id, uint8_t id); //untested
-    bool setBaudRate(int servo_id, uint8_t baud_rate);//untested
-    bool setReturnDelayTime(int servo_id, uint8_t return_delay_time);//untested
+    // **************************** SETTERS ******************************** //
+    bool setId(int servo_id, uint8_t id); //not full tested
+    bool setBaudRate(int servo_id, uint8_t baud_rate);//not fully tested
+    bool setReturnDelayTime(int servo_id, uint8_t return_delay_time);//not fully tested
 
     bool setOperatingMode(int servo_id, uint8_t operating_mode);
     
@@ -78,27 +125,49 @@ public:
     bool setPosition(int servo_id, uint32_t position);
     bool setVelocity(int servo_id, int32_t velocity);
     
-    // ************************* SYNC_WRITE METHODS *************************** //
+    // *********************** SYNC_WRITE METHODS *************************** //
     bool setMultiPosition(std::vector<std::vector<int> > value_pairs);
     bool setMultiVelocity(std::vector<std::vector<int> > value_pairs);
+
+    //set position setpoint and velocity limit 
     bool setMultiPositionVelocity(std::vector<std::vector<int> > value_tuples);
     bool setMultiTorqueEnabled(std::vector<std::vector<int> > value_pairs);
     
 protected:
-    bool validateNoErrorsProtected(int servo_id, uint8_t error_code, std::string method_name); // returns true if no error
+    /**
+     * \brief Checks for errors in the error byte and prints out an error 
+     * description if neccessary. It gives a more usefull error message 
+     * in the case that you are writing to a protected field. 
+     */
+    bool validateNoErrorsProtected(int servo_id, 
+        uint8_t error_code, std::string method_name); // returns true if no error
 
-    bool validateNoErrors(int servo_id, uint8_t error_code, std::string command_failed);
+    /**
+     * \brief Checks for errors in the error byte and prints out an error 
+     * description if neccessary.
+     */
+    bool validateNoErrors(int servo_id, uint8_t error_code, 
+        std::string command_failed);
 
+    /**
+     * Reads a value from the specified dynamixel at the specified address
+     */
     bool read(int servo_id,
               int address,
               int size,
               std::vector<uint8_t>& response);
 
+    /**
+     * Writes a value to the specified dynamixel at the specified address
+     */
     bool write(int servo_id,
                int address,
                const std::vector<uint8_t>& data,
                std::vector<uint8_t>& response);
 
+    /**
+     * Writes values to multiple dynamixels at a single, specified address
+     */
     bool syncWrite(int address,
                    const std::vector<std::vector<uint8_t> >& data);
     
@@ -111,7 +180,16 @@ private:
     bool writePacket(uint8_t *packet);
     bool readResponse(std::vector<uint8_t>& response);
 
+    /**
+     * Calculates the CRC of the packet as per Robotis's formula. 
+     * It will automatically ignore already present CRC bytes. 
+     */
     uint16_t calculate_crc(uint8_t *data);
+
+    /** 
+     * Stuffs the packets to deal with restrictions on sending too many
+     * Consecutive ones.
+     */
     std::vector<uint8_t> stuff_packet(uint8_t *packet);
 };
 
