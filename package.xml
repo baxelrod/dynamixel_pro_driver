@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <package>
   <name>dynamixel_pro_driver</name>
-  <version>0.8.2</version>
+  <version>0.8.3</version>
   <description>The dynamixel_pro_driver package</description>
 
   <maintainer email="baxelrod@willowgarage.com">Brian Axelrod</maintainer>
