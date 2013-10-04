@@ -94,11 +94,11 @@ include_directories(include ${catkin_INCLUDE_DIRS})
 # )
 
 ## Mark executables and/or libraries for installation
- install(TARGETS dynamixel_pro_driver dynamixel_pro_driver_node
+install(TARGETS dynamixel_pro_driver 
    ARCHIVE DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
    LIBRARY DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
    RUNTIME DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
- )
+)
 
 ## Mark cpp header files for installation
  install(DIRECTORY include/${PROJECT_NAME}/
