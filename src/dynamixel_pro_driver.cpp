@@ -36,7 +36,7 @@
 #include <pthread.h>
 #include <stdint.h>
 #include <stdio.h>
-#include <iostream> 
+#include <iostream>
 #include <stdlib.h>
 
 #include <sstream>
@@ -77,7 +77,7 @@ DynamixelProDriver::DynamixelProDriver(std::string device="/dev/ttyUSB0",
     pthread_mutex_init(&serial_mutex_, NULL);
     port_ = new serial::Serial(device, atoi(baud.c_str()), serial::Timeout::simpleTimeout(1));
 
-    
+
 }
 
 DynamixelProDriver::~DynamixelProDriver()
@@ -89,7 +89,7 @@ DynamixelProDriver::~DynamixelProDriver()
 
 bool DynamixelProDriver::ping(int servo_id)
 {
-    // Instruction, crcx2 
+    // Instruction, crcx2
     uint8_t length = 3;
 
     // packet: FF  FF FD 00 ID LEN_L LEN_H INSTRUCTION PARAM_1 ... CRC_L CRC_H
@@ -104,7 +104,7 @@ bool DynamixelProDriver::ping(int servo_id)
     bool success = writePacket(packet);
     if (success) { success = readResponse(response); }
     pthread_mutex_unlock(&serial_mutex_);
-    
+
     return success;
 }
 
@@ -155,7 +155,7 @@ bool DynamixelProDriver::getBaudRate(int servo_id, uint8_t& baud_rate)
         baud_rate = response[HEADER_SIZE + 2];
         return DMX_PRO_DRIVER_ERROR_CHECK(servo_id, response[ERROR_INDEX]);
     }
-    
+
     return false;
 }
 
@@ -180,7 +180,7 @@ bool DynamixelProDriver::getOperatingMode(int servo_id, uint8_t& op_mode)
         op_mode = response[HEADER_SIZE + 2];
         return DMX_PRO_DRIVER_ERROR_CHECK(servo_id, response[ERROR_INDEX]);
     }
-    
+
     return false;
 }
 
@@ -335,7 +335,7 @@ bool DynamixelProDriver::getPosition(int servo_id, int32_t& position)
 
     if (read(servo_id, DXL_PRESENT_POSITION, 4, response))
     {
-        position = *((int32_t *)(&response[REPLY_BEGIN_INDEX])); 
+        position = *((int32_t *)(&response[REPLY_BEGIN_INDEX]));
         return DMX_PRO_DRIVER_ERROR_CHECK(servo_id, response[ERROR_INDEX]);
     }
 
@@ -348,7 +348,7 @@ bool DynamixelProDriver::getVelocity(int servo_id, int32_t& velocity)
 
     if (read(servo_id, DXL_PRESENT_SPEED, 4, response))
     {
-        velocity = *((int32_t *)(&response[REPLY_BEGIN_INDEX])); 
+        velocity = *((int32_t *)(&response[REPLY_BEGIN_INDEX]));
         return DMX_PRO_DRIVER_ERROR_CHECK(servo_id, response[ERROR_INDEX]);
     }
 
@@ -361,7 +361,7 @@ bool DynamixelProDriver::getCurrent(int servo_id, uint16_t& current)
 
     if (read(servo_id, DXL_PRESENT_CURRENT, 2, response))
     {
-        current = *((uint16_t *)(&response[REPLY_BEGIN_INDEX])); 
+        current = *((uint16_t *)(&response[REPLY_BEGIN_INDEX]));
         if (!validateNoErrors(servo_id, response[ERROR_INDEX], "getCurrent"))
             return false;
 
@@ -380,7 +380,7 @@ bool DynamixelProDriver::getVoltage(int servo_id, float& voltage)
 
     if (read(servo_id, DXL_PRESENT_VOLTAGE, 2, response))
     {
-        uint16_t voltage_t = *((uint16_t *)(&response[REPLY_BEGIN_INDEX])); 
+        uint16_t voltage_t = *((uint16_t *)(&response[REPLY_BEGIN_INDEX]));
         voltage = voltage_t / 10.0;
         return DMX_PRO_DRIVER_ERROR_CHECK(servo_id, response[ERROR_INDEX]);
     }
@@ -407,12 +407,12 @@ bool DynamixelProDriver::setId(int servo_id, uint8_t id)
 {
     std::vector<uint8_t> data;
     data.push_back(id);
-    
+
     std::vector<uint8_t> response;
-    
+
     if (write(servo_id, DXL_ID, data, response))
         return DMX_PRO_DRIVER_ERROR_CHECK(servo_id, response[ERROR_INDEX]);
-    
+
     return false;
 }
 
@@ -420,12 +420,12 @@ bool DynamixelProDriver::setBaudRate(int servo_id, uint8_t baud_rate)
 {
     std::vector<uint8_t> data;
     data.push_back(baud_rate);
-    
+
     std::vector<uint8_t> response;
-    
+
     if (write(servo_id, DXL_BAUD_RATE, data, response))
         return DMX_PRO_DRIVER_ERROR_CHECK(servo_id, response[ERROR_INDEX]);
-    
+
     return false;
 }
 
@@ -446,12 +446,12 @@ bool DynamixelProDriver::setOperatingMode(int servo_id, uint8_t op_mode)
 {
     std::vector<uint8_t> data;
     data.push_back(op_mode);
-    
+
     std::vector<uint8_t> response;
-    
+
     if (write(servo_id, DXL_DRIVE_MODE, data, response))
         return DMX_PRO_DRIVER_ERROR_CHECK_PROTECTED(servo_id, response[ERROR_INDEX]);
-    
+
     return false;
 }
 
@@ -471,7 +471,7 @@ bool DynamixelProDriver::setAngleLimits(int servo_id, int32_t min_angle, int32_t
 
     if (write(servo_id, DXL_MAX_ANGLE_LIMIT, data, response))
         return DMX_PRO_DRIVER_ERROR_CHECK_PROTECTED(servo_id, response[ERROR_INDEX]);
-    
+
     return false;
 }
 
@@ -488,7 +488,7 @@ bool DynamixelProDriver::setMaxAngleLimit(int servo_id, int32_t max_angle)
 
     if (write(servo_id, DXL_MAX_ANGLE_LIMIT, data, response))
         return DMX_PRO_DRIVER_ERROR_CHECK_PROTECTED(servo_id, response[ERROR_INDEX]);
-    
+
     return false;
 }
 
@@ -505,7 +505,7 @@ bool DynamixelProDriver::setMinAngleLimit(int servo_id, int32_t min_angle)
 
     if (write(servo_id, DXL_MIN_ANGLE_LIMIT, data, response))
         return DMX_PRO_DRIVER_ERROR_CHECK_PROTECTED(servo_id, response[ERROR_INDEX]);
-    
+
     return false;
 }
 
@@ -533,10 +533,10 @@ bool DynamixelProDriver::setMaxTorque(int servo_id, uint16_t max_torque)
     *((uint16_t *)&data[0]) = max_torque;
 
     std::vector<uint8_t> response;
-    
+
     if (write(servo_id, DXL_MAX_TORQUE, data, response))
         return DMX_PRO_DRIVER_ERROR_CHECK_PROTECTED(servo_id, response[ERROR_INDEX]);
-    
+
     return false;
 }
 
@@ -599,7 +599,7 @@ bool DynamixelProDriver::setMultiPosition(std::vector<std::vector<int> > value_p
 
         std::vector<uint8_t> value_pair;
         value_pair.push_back(motor_id);                 // servo id
-        
+
         //expand the vector to be the right size
         for (int i = 0; i < 4; i++)
             value_pair.push_back(0);
@@ -609,10 +609,10 @@ bool DynamixelProDriver::setMultiPosition(std::vector<std::vector<int> > value_p
         data.push_back(value_pair);
     }
 
-    if (syncWrite(DXL_GOAL_POSITION, data)) 
+    if (syncWrite(DXL_GOAL_POSITION, data))
         return true;
-    else 
-        return false; 
+    else
+        return false;
 }
 
 bool DynamixelProDriver::setMultiVelocity(std::vector<std::vector<int> > value_pairs)
@@ -636,9 +636,9 @@ bool DynamixelProDriver::setMultiVelocity(std::vector<std::vector<int> > value_p
         data.push_back(value_pair);
     }
 
-    if (syncWrite(DXL_GOAL_SPEED, data)) 
+    if (syncWrite(DXL_GOAL_SPEED, data))
         return true;
-    else 
+    else
         return false;
 }
 
@@ -655,7 +655,7 @@ bool DynamixelProDriver::setMultiPositionVelocity(std::vector<std::vector<int> >
         std::vector<uint8_t> vals;
 
         vals.push_back(motor_id);     // servo id
-        
+
         //expand the vector to be the right size
         for (int i = 0; i < 8; i++)
             vals.push_back(0);
@@ -666,32 +666,32 @@ bool DynamixelProDriver::setMultiPositionVelocity(std::vector<std::vector<int> >
         data.push_back(vals);
     }
 
-    if (syncWrite(DXL_GOAL_POSITION, data)) 
+    if (syncWrite(DXL_GOAL_POSITION, data))
         return true;
-    else 
+    else
         return false;
 }
 
 bool DynamixelProDriver::setMultiTorqueEnabled(std::vector<std::vector<int> > value_pairs)
 {
     std::vector<std::vector<uint8_t> > data;
-    
-    cout << "num servos to enable " << value_pairs.size() << endl; 
+
+    cout << "num servos to enable " << value_pairs.size() << endl;
     for (size_t i = 0; i < value_pairs.size(); ++i)
     {
         int motor_id = value_pairs[i][0];
         bool torque_enabled = value_pairs[i][1];
-        
+
         std::vector<uint8_t> value_pair;
         value_pair.push_back(motor_id);         // servo id
         value_pair.push_back(torque_enabled);   // torque_enabled
-        
+
         data.push_back(value_pair);
     }
-    
+
     if (syncWrite(DXL_TORQUE_ENABLE, data))
         return true;
-    else 
+    else
         return false;
 }
 
@@ -706,9 +706,9 @@ bool DynamixelProDriver::validateNoErrorsProtected(int servo_id, uint8_t error_c
     if ((error_code & DXL_UNDOCUMENTED_ERROR2) != 0)
     {
       bool torque_enabled;
-      getTorqueEnabled(servo_id, torque_enabled); 
-      if (torque_enabled != 0) //give a more userful error message. The error code it gives isn't documented as of now 
-                               // but they haven't officially released the servos either so it may be documented upon release 
+      getTorqueEnabled(servo_id, torque_enabled);
+      if (torque_enabled != 0) //give a more userful error message. The error code it gives isn't documented as of now
+                               // but they haven't officially released the servos either so it may be documented upon release
           cerr << "ERROR: You may not set the " << method_name << " on a servo when torque is enabled " << endl;
     }
   }
@@ -718,13 +718,13 @@ bool DynamixelProDriver::validateNoErrors(int servo_id, uint8_t error_code, std:
 {
     if (error_code == DXL_NO_ERROR)
     {
-        return true;        
+        return true;
     }
     else
     {
         ROS_ERROR("you have a dynamixel comms error %d", (int) error_code);
     }
-    
+
     std::vector<std::string> error_msgs;
 
     if ((error_code & DXL_INPUT_VOLTAGE_ERROR) != 0) { error_msgs.push_back("INPUT_VOLTAGE_ERROR"); }
@@ -734,7 +734,7 @@ bool DynamixelProDriver::validateNoErrors(int servo_id, uint8_t error_code, std:
     if ((error_code & DXL_ELECTRIC_SHOCK_ERROR) != 0)         { error_msgs.push_back("ELECTRIC_SHOCK_ERROR"); }
     if ((error_code & DXL_UNDOCUMENTED_ERROR1) != 0)      { error_msgs.push_back("UNDOCUMENTED_ERROR1"); }
     if ((error_code & DXL_UNDOCUMENTED_ERROR2) != 0)   { error_msgs.push_back("UNDOCUMENTED_ERROR2"); }
-    
+
     std::stringstream m;
     m << "Detected error condition [";
 
@@ -742,8 +742,8 @@ bool DynamixelProDriver::validateNoErrors(int servo_id, uint8_t error_code, std:
     {
         m << error_msgs[i] << (i != error_msgs.size()-1 ? ", " : "");
     }
-    
-    m << "] during " << command_failed << " command on servo #" << servo_id; 
+
+    m << "] during " << command_failed << " command on servo #" << servo_id;
 
     ROS_ERROR("%s", m.str().c_str());
 
@@ -760,8 +760,8 @@ bool DynamixelProDriver::read(int servo_id,
     uint8_t length = 7;
 
 
-    // header: FF  FF FD 00  ID LEN_L  LEN_H 
-    uint8_t packet[] = { 0xFF, 0xFF, 0xFD, 0x00, servo_id, LOBYTE(length), HIBYTE(length), //header 
+    // header: FF  FF FD 00  ID LEN_L  LEN_H
+    uint8_t packet[] = { 0xFF, 0xFF, 0xFD, 0x00, servo_id, LOBYTE(length), HIBYTE(length), //header
         DXL_READ_DATA, LOBYTE(address), HIBYTE(address), LOBYTE(size), HIBYTE(size), 0x00, 0x0}; //content
         // instruction, address_lo,      address_hi      len_to_read_lo, len_to_read_hi, crc_l, crc_h
 
@@ -792,7 +792,7 @@ bool DynamixelProDriver::write(int servo_id,
     packet[3] = 0x00;
     packet[4] = servo_id;
     packet[5] = LOBYTE(length);
-    packet[6] = HIBYTE(length);//header 
+    packet[6] = HIBYTE(length);//header
 
     packet[7] = DXL_WRITE_DATA;
     packet[8] = LOBYTE(address);
@@ -824,7 +824,7 @@ bool DynamixelProDriver::syncWrite(int address,
 
     //field_length--;//don't count the ID
 
-    
+
     packet[0] = 0xFF;
     packet[1] = 0xFF;
     packet[2] = 0xFD;
@@ -891,8 +891,8 @@ bool DynamixelProDriver::writePacket(uint8_t *packet)
     count = MAKEWORD(packet[PKT_LENGTH_L], packet[PKT_LENGTH_H]);
 
     vector<uint8_t> proccessed_packet = stuff_packet(packet);
-    
-    uint16_t crc = calculate_crc(&proccessed_packet[0]);//don't count crc 
+
+    uint16_t crc = calculate_crc(&proccessed_packet[0]);//don't count crc
 
     proccessed_packet.push_back(LOBYTE(crc));
     proccessed_packet.push_back(HIBYTE(crc));
@@ -913,18 +913,18 @@ bool DynamixelProDriver::readResponse(std::vector<uint8_t>& response)
     struct timespec ts_now;
     clock_gettime(CLOCK_REALTIME, &ts_now);
     double current_time_sec = ts_now.tv_sec + ts_now.tv_nsec / 1.0e9;
-    
+
     if (current_time_sec - last_reset_sec > 20)
     {
         read_count = 0;
         read_error_count = 0;
         last_reset_sec = current_time_sec;
     }
-    
+
     ++read_count;
-    
+
     static const uint16_t timeout_ms = 50;
-    
+
     uint8_t buffer[70000];
     response.clear();
 
@@ -934,7 +934,7 @@ bool DynamixelProDriver::readResponse(std::vector<uint8_t>& response)
         ++read_error_count;
         return false;
     }
-    
+
     if (buffer[0] == 0xFF && buffer[1] == 0xFF && buffer[2] == 0xFD && buffer[3] != 0xFD)
     {
         response.push_back(buffer[0]);  // 0xFF
@@ -943,13 +943,13 @@ bool DynamixelProDriver::readResponse(std::vector<uint8_t>& response)
         response.push_back(buffer[3]);  // reserved (usually 0x00)
         response.push_back(buffer[4]);  // ID
         response.push_back(buffer[5]);  // packet length low
-        response.push_back(buffer[6]);  // packet length high 
+        response.push_back(buffer[6]);  // packet length high
         //you could also verify the instruction which is guaranteed to be 0x55
-        
+
         uint8_t n_bytes = MAKEWORD(buffer[5], buffer[6]);    // Length
         //printf("recieved %d bytes\n", n_bytes);
         //response.push_back(n_bytes);
-        
+
         // wait for and read the rest of response bytes
         if (!waitForBytes(n_bytes, timeout_ms) || port_->read(buffer, n_bytes) != n_bytes)
         {
@@ -957,14 +957,14 @@ bool DynamixelProDriver::readResponse(std::vector<uint8_t>& response)
             response.clear();
             return false;
         }
-        
+
         for (int i = 0; i < n_bytes; ++i)
         {
             response.push_back(buffer[i]);
         }
 
 
-        // verify the crc 
+        // verify the crc
         // spec guarantees that the data is stored as an array
         uint16_t crc = calculate_crc(&response[0]);
         uint16_t sent_crc = MAKEWORD(response[response.size() - 2], response[response.size() - 1]);
@@ -981,9 +981,9 @@ uint16_t DynamixelProDriver::calculate_crc(uint8_t *data)
 {
     uint16_t size = MAKEWORD(data[PKT_LENGTH_L], data[PKT_LENGTH_H]) + 5;
     //cout << "size is" << size << endl;
-    
+
     uint16_t i, j, crc_accum = 0;
-    
+
     static uint16_t crc_table[256] = {0x0000,
                                 0x8005, 0x800F, 0x000A, 0x801B, 0x001E, 0x0014, 0x8011,
                                 0x8033, 0x0036, 0x003C, 0x8039, 0x0028, 0x802D, 0x8027,
@@ -1035,11 +1035,11 @@ uint16_t DynamixelProDriver::calculate_crc(uint8_t *data)
 vector<uint8_t> DynamixelProDriver::stuff_packet(uint8_t *packet)
 {
    vector<uint8_t> stuffed_packet;
-    
+
     int i = 0;
     int packet_length_in = MAKEWORD(packet[PKT_LENGTH_L], packet[PKT_LENGTH_H]);
     int packet_length_out = packet_length_in;
-    
+
     for (i = 0; i < 7; i++)
     {
         stuffed_packet.push_back(packet[i]);
@@ -1050,17 +1050,17 @@ vector<uint8_t> DynamixelProDriver::stuff_packet(uint8_t *packet)
     {
         currSpot = i + 7;
         stuffed_packet.push_back(packet[currSpot ]);//copy the data over
-        
+
         if(packet[currSpot] == 0xFD && packet[currSpot -1] == 0xFF && packet[currSpot -2] == 0xFF)
         {   // 0xFF 0xFF 0xFD, this means we have to stuff an extra 0xFD in so this packet doesn't look like a header
             stuffed_packet.push_back(0xFD);
             packet_length_out++;
         }
     }
-    
+
    packet[PKT_LENGTH_L] = LOBYTE(packet_length_out);
    packet[PKT_LENGTH_H] = HIBYTE(packet_length_out);
-   
+
    return stuffed_packet;
 }
 
