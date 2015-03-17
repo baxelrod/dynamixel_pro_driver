@@ -62,14 +62,14 @@ namespace dynamixel_pro_driver
 {
 
 DynamixelProDriver::DynamixelProDriver(const std::string &device,
-                         const std::string &baud, uint32_t timeout_ms)
+                         const std::string &baud, uint32_t timeout_ms) :
+    read_error_count(0),
+    read_count(0),
+    last_reset_sec(0.0),
+    port_(new serial::Serial(device, atoi(baud.c_str()),
+        serial::Timeout::simpleTimeout(timeout_ms))),
+    serial_mutex_()
 {
-    read_count = 0;
-    read_error_count = 0;
-    last_reset_sec = 0.0;
-
-    pthread_mutex_init(&serial_mutex_, NULL);
-    port_ = new serial::Serial(device, atoi(baud.c_str()), serial::Timeout::simpleTimeout(timeout_ms));
 }
 
 DynamixelProDriver::~DynamixelProDriver()
