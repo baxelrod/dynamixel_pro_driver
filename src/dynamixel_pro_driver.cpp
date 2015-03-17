@@ -969,7 +969,7 @@ bool DynamixelProDriver::readResponse(std::vector<uint8_t>& response)
     return false;
 }
 
-uint16_t DynamixelProDriver::calculate_crc(uint8_t *data)
+uint16_t DynamixelProDriver::calculate_crc(uint8_t *data) const
 {
     uint16_t size = MAKEWORD(data[PKT_LENGTH_L], data[PKT_LENGTH_H]) + 5;
     //cout << "size is" << size << endl;
@@ -1024,7 +1024,7 @@ uint16_t DynamixelProDriver::calculate_crc(uint8_t *data)
     return crc_accum;
 }
 
-vector<uint8_t> DynamixelProDriver::stuff_packet(uint8_t *packet)
+vector<uint8_t> DynamixelProDriver::stuff_packet(uint8_t *packet) const
 {
    vector<uint8_t> stuffed_packet;
 

@@ -185,13 +185,13 @@ private:
      * Calculates the CRC of the packet as per Robotis's formula.
      * It will automatically ignore already present CRC bytes.
      */
-    uint16_t calculate_crc(uint8_t *data);
+    uint16_t calculate_crc(uint8_t *data) const;
 
     /**
      * Stuffs the packets to deal with restrictions on sending too many
      * Consecutive ones.
      */
-    std::vector<uint8_t> stuff_packet(uint8_t *packet);
+    std::vector<uint8_t> stuff_packet(uint8_t *packet) const;
 };
 
 }
