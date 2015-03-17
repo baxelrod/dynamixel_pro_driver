@@ -66,7 +66,7 @@ namespace dynamixel_pro_driver
 class DynamixelProDriver
 {
 public:
-    DynamixelProDriver(std::string device, std::string baud);
+    DynamixelProDriver(const std::string &device, const std::string &baud);
     ~DynamixelProDriver();
 
     long long unsigned int read_error_count;
@@ -126,12 +126,12 @@ public:
     bool setVelocity(int servo_id, int32_t velocity);
 
     // *********************** SYNC_WRITE METHODS *************************** //
-    bool setMultiPosition(std::vector<std::vector<int> > value_pairs);
-    bool setMultiVelocity(std::vector<std::vector<int> > value_pairs);
+    bool setMultiPosition(const std::vector<std::vector<int> > &value_pairs);
+    bool setMultiVelocity(const std::vector<std::vector<int> > &value_pairs);
 
     //set position setpoint and velocity limit
-    bool setMultiPositionVelocity(std::vector<std::vector<int> > value_tuples);
-    bool setMultiTorqueEnabled(std::vector<std::vector<int> > value_pairs);
+    bool setMultiPositionVelocity(const std::vector<std::vector<int> > &value_tuples);
+    bool setMultiTorqueEnabled(const std::vector<std::vector<int> > &value_pairs);
 
 protected:
     /**
@@ -140,14 +140,14 @@ protected:
      * in the case that you are writing to a protected field.
      */
     bool validateNoErrorsProtected(int servo_id,
-        uint8_t error_code, std::string method_name); // returns true if no error
+        uint8_t error_code, const std::string &method_name); // returns true if no error
 
     /**
      * \brief Checks for errors in the error byte and prints out an error
      * description if neccessary.
      */
     bool validateNoErrors(int servo_id, uint8_t error_code,
-        std::string command_failed);
+        const std::string &command_failed);
 
     /**
      * Reads a value from the specified dynamixel at the specified address

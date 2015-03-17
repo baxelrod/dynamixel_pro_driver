@@ -67,8 +67,8 @@ using namespace std;
 namespace dynamixel_pro_driver
 {
 
-DynamixelProDriver::DynamixelProDriver(std::string device="/dev/ttyUSB0",
-                         std::string baud="1000000")
+DynamixelProDriver::DynamixelProDriver(const std::string &device="/dev/ttyUSB0",
+                         const std::string &baud="1000000")
 {
     read_count = 0;
     read_error_count = 0;
@@ -588,7 +588,7 @@ bool DynamixelProDriver::setVelocity(int servo_id, int32_t velocity)
     return false;
 }
 
-bool DynamixelProDriver::setMultiPosition(std::vector<std::vector<int> > value_pairs)
+bool DynamixelProDriver::setMultiPosition(const std::vector<std::vector<int> > &value_pairs)
 {
     std::vector<std::vector<uint8_t> > data;
 
@@ -615,7 +615,7 @@ bool DynamixelProDriver::setMultiPosition(std::vector<std::vector<int> > value_p
         return false;
 }
 
-bool DynamixelProDriver::setMultiVelocity(std::vector<std::vector<int> > value_pairs)
+bool DynamixelProDriver::setMultiVelocity(const std::vector<std::vector<int> > &value_pairs)
 {
     std::vector<std::vector<uint8_t> > data;
 
@@ -642,7 +642,7 @@ bool DynamixelProDriver::setMultiVelocity(std::vector<std::vector<int> > value_p
         return false;
 }
 
-bool DynamixelProDriver::setMultiPositionVelocity(std::vector<std::vector<int> > value_tuples)
+bool DynamixelProDriver::setMultiPositionVelocity(const std::vector<std::vector<int> > &value_tuples)
 {
     std::vector<std::vector<uint8_t> > data;
 
@@ -672,7 +672,7 @@ bool DynamixelProDriver::setMultiPositionVelocity(std::vector<std::vector<int> >
         return false;
 }
 
-bool DynamixelProDriver::setMultiTorqueEnabled(std::vector<std::vector<int> > value_pairs)
+bool DynamixelProDriver::setMultiTorqueEnabled(const std::vector<std::vector<int> > &value_pairs)
 {
     std::vector<std::vector<uint8_t> > data;
 
@@ -695,7 +695,7 @@ bool DynamixelProDriver::setMultiTorqueEnabled(std::vector<std::vector<int> > va
         return false;
 }
 
-bool DynamixelProDriver::validateNoErrorsProtected(int servo_id, uint8_t error_code, std::string method_name)
+bool DynamixelProDriver::validateNoErrorsProtected(int servo_id, uint8_t error_code, const std::string &method_name)
 {
   if (validateNoErrors(servo_id, error_code, method_name))
   {
@@ -714,7 +714,7 @@ bool DynamixelProDriver::validateNoErrorsProtected(int servo_id, uint8_t error_c
   }
 }
 
-bool DynamixelProDriver::validateNoErrors(int servo_id, uint8_t error_code, std::string command_failed)
+bool DynamixelProDriver::validateNoErrors(int servo_id, uint8_t error_code, const std::string &command_failed)
 {
     if (error_code == DXL_NO_ERROR)
     {
