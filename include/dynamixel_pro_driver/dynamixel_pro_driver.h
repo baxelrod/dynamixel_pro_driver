@@ -66,7 +66,8 @@ namespace dynamixel_pro_driver
 class DynamixelProDriver
 {
 public:
-    DynamixelProDriver(const std::string &device, const std::string &baud);
+    DynamixelProDriver(const std::string &device = "/dev/ttyUSB0", const std::string &baud = "1000000",
+        uint32_t timeout_ms = 1);
     ~DynamixelProDriver();
 
     long long unsigned int read_error_count;
