@@ -39,7 +39,7 @@
 #include <string>
 
 /**
- * \brief Contains various constants used by the dynamixel pro driver 
+ * \brief Contains various constants used by the dynamixel pro driver
  */
 namespace dynamixel_pro_driver
 {
